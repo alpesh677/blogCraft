@@ -14,7 +14,7 @@ export default async function Dashboard() {
   if (!clerkUser) {
     redirect("/sign-in");
   }
-  const email = clerkUser?.emailAddresses[0]?.emailAddress ?? ""
+  const email = clerkUser?.emailAddresses?.[0].emailAddress ?? "";
 
   const sql = await getDbConnetion();
   const hasCancelled = await hasCancelledSubscription(sql, email);
@@ -23,6 +23,7 @@ export default async function Dashboard() {
   let priceId = null;
 
   const user = await getUser(sql, email);
+
   if (user) {
     userId = clerkUser?.id;
     if (userId) {
@@ -32,10 +33,14 @@ export default async function Dashboard() {
     priceId = user[0].price_id;
   }
 
-  const { id: planTypeId = "starter", name: planTypeName } =
-    getPlanType(priceId);
+  const { id: planTypeId = "starter", name: planTypeName } = getPlanType(priceId);
 
   const isBasicPlan = planTypeId === "basic";
+  const isProPlan = planTypeId === "pro";
+
+  const posts = await sql`SELECT * FROM posts WHERE user_id = ${userId}`;
+
+  const isValidBasicPlan = isBasicPlan && posts.length < 3;
   return (
     <BgGradient>
       <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
@@ -52,17 +57,24 @@ export default async function Dashboard() {
             Upload your audio or video file and our AI do the magic
           </p>
 
-          <p className="mt-2 text-lg leading-8 text-gray-600 max-w-2xl text-center">
-            You get <span className='font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded-md'>{isBasicPlan ? "3" : "unlimited"} blog posts</span> as part of the {" "} <span className='font-bold capitalize'>{planTypeName}</span> plan
-          </p>
+          {(isBasicPlan || isProPlan) && (
+            <p className="mt-2 text-lg leading-8 text-gray-600 max-w-2xl text-center">
+              You get{" "}
+              <span className="font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded-md">
+                {isBasicPlan ? "3" : "Unlimited"} blog posts
+              </span>{" "}
+              as part of the{" "}
+              <span className="font-bold capitalize">{planTypeName}</span> Plan.
+            </p>
+          )}
 
-          {
-            hasCancelled ?
-              <UpgradeYourPlan /> :
-              <BgGradient>
-                <UploadForm />
-              </BgGradient>
-          }
+          {isValidBasicPlan || isProPlan ? (
+            <BgGradient>
+              <UploadForm />
+            </BgGradient>
+          ) : (
+            <UpgradeYourPlan />
+          )}
 
 
         </div>

@@ -18,7 +18,6 @@ export default async function Posts() {
     const posts = await sql`SELECT * FROM posts WHERE user_id = ${user.id}`;
 
     const title = posts[0].title.split(" ")[1];
-    console.log(title);
     return (
         <div>
             <main className='mx-auto max-w-screen-xl w-full mb-12 px-2.5 mt--28 lg:px-0'>

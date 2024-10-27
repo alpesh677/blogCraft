@@ -28,7 +28,7 @@ export default function Header() {
                     Pricing
                 </NavLink>
                 <SignedIn>
-                    <NavLink href={"/#posts"}>
+                    <NavLink href={"/posts"}>
                         Your Posts
                     </NavLink>
                 </SignedIn>

@@ -43,7 +43,7 @@ export async function transcribeUploadedFile(
 		const { result, error } =
 			await deepgram.listen.prerecorded.transcribeUrl(
 				{ url },
-				{ smart_format: true, model: "nova-2", language: "en-IN" },
+				{ smart_format: true, model: "base", language: "en" },
 			);
 
 		if (error) {
